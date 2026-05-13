@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>レターパックプラス 宛名ジェネレーター</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="editor" aria-label="宛名入力">
+        <header class="app-header">
+          <p class="label">Letter Pack Plus</p>
+          <h1>宛名ジェネレーター</h1>
+        </header>
+
+        <form id="addressForm" class="form">
+          <fieldset>
+            <legend>お届け先</legend>
+            <div class="field">
+              <label for="toPostal">郵便番号</label>
+              <span class="postal-row">
+                <input id="toPostal" name="toPostal" inputmode="numeric" autocomplete="postal-code" placeholder="100-0001">
+                <button type="button" class="lookup-button" data-postal="toPostal" data-address="toAddress">住所自動入力</button>
+              </span>
+              <span id="toLookupStatus" class="lookup-status" aria-live="polite"></span>
+            </div>
+            <label>
+              住所
+              <textarea id="toAddress" name="toAddress" rows="3" placeholder="東京都千代田区千代田1-1"></textarea>
+            </label>
+            <label>
+              宛名
+              <input id="toName" name="toName" autocomplete="name" placeholder="山田 太郎">
+            </label>
+            <label>
+              敬称
+              <select id="toHonorific" name="toHonorific">
+                <option>様</option>
+                <option>御中</option>
+                <option>行</option>
+                <option>なし</option>
+              </select>
+            </label>
+            <label>
+              電話番号
+              <input id="toPhone" name="toPhone" inputmode="tel" autocomplete="tel" placeholder="03-1234-5678">
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>ご依頼主</legend>
+            <div class="field">
+              <label for="fromPostal">郵便番号</label>
+              <span class="postal-row">
+                <input id="fromPostal" name="fromPostal" inputmode="numeric" placeholder="150-0001">
+                <button type="button" class="lookup-button" data-postal="fromPostal" data-address="fromAddress">住所自動入力</button>
+              </span>
+              <span id="fromLookupStatus" class="lookup-status" aria-live="polite"></span>
+            </div>
+            <label>
+              住所
+              <textarea id="fromAddress" name="fromAddress" rows="3" placeholder="東京都渋谷区神宮前1-1-1"></textarea>
+            </label>
+            <label>
+              氏名
+              <input id="fromName" name="fromName" placeholder="佐藤 花子">
+            </label>
+            <label>
+              電話番号
+              <input id="fromPhone" name="fromPhone" inputmode="tel" placeholder="090-1234-5678">
+            </label>
+          </fieldset>
+
+          <fieldset>
+            <legend>品名・印刷調整</legend>
+            <label>
+              品名
+              <input id="itemName" name="itemName" placeholder="書類">
+            </label>
+            <div class="control-row">
+              <label>
+                横位置
+                <input id="offsetX" name="offsetX" type="number" value="0" step="1">
+              </label>
+              <label>
+                縦位置
+                <input id="offsetY" name="offsetY" type="number" value="0" step="1">
+              </label>
+              <label>
+                拡大率
+                <input id="printScale" name="printScale" type="number" value="100" min="90" max="110" step="1">
+              </label>
+            </div>
+            <label class="checkbox-row">
+              <input id="replyEnvelope" name="replyEnvelope" type="checkbox">
+              <span>右側に返信用宛名を印刷</span>
+            </label>
+          </fieldset>
+
+          <div class="actions">
+            <button type="button" id="sampleButton">サンプル</button>
+            <button type="reset">クリア</button>
+            <button type="button" id="printButton" class="primary">印刷</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="preview-wrap" aria-label="印刷プレビュー">
+        <div class="preview-toolbar">
+          <span>印刷プレビュー</span>
+          <span id="statusText">A4横左半分・倍率100%</span>
+        </div>
+        <div id="printLayout" class="print-layout">
+          <article id="printSheet" class="sheet print-card">
+            <div class="brand-band">
+              <span class="brand-title">レターパックプラス 宛名印刷</span>
+            </div>
+
+            <section class="destination block">
+              <div class="block-title">お届け先 To</div>
+              <div class="postal" id="previewToPostal"></div>
+              <div class="address vertical" id="previewToAddress"></div>
+              <div class="name-line">
+                <span id="previewToName"></span>
+                <span id="previewHonorific" class="honorific"></span>
+              </div>
+              <div class="phone" id="previewToPhone"></div>
+            </section>
+
+            <section class="sender block">
+              <div class="block-title">ご依頼主 From</div>
+              <div class="postal small" id="previewFromPostal"></div>
+              <div class="address small-text" id="previewFromAddress"></div>
+              <div class="sender-name" id="previewFromName"></div>
+              <div class="phone small-text" id="previewFromPhone"></div>
+            </section>
+
+            <section class="item block">
+              <div class="block-title">品名</div>
+              <div id="previewItemName"></div>
+            </section>
+          </article>
+
+          <article id="replySheet" class="sheet reply-sheet print-card" aria-label="返信用レターパックプラス 宛名">
+            <div class="brand-band">
+              <span class="brand-title">レターパックプラス 返信用</span>
+            </div>
+
+            <section class="destination block">
+              <div class="block-title">お届け先 To</div>
+              <div class="postal" id="replyToPostal"></div>
+              <div class="address vertical" id="replyToAddress"></div>
+              <div class="name-line">
+                <span id="replyToName"></span>
+                <span class="honorific">行</span>
+              </div>
+              <div class="phone" id="replyToPhone"></div>
+            </section>
+
+            <section class="sender block">
+              <div class="block-title">ご依頼主 From</div>
+              <div class="postal small" id="replyFromPostal"></div>
+              <div class="address small-text" id="replyFromAddress"></div>
+              <div class="sender-name" id="replyFromName"></div>
+              <div class="phone small-text" id="replyFromPhone"></div>
+            </section>
+
+            <section class="item block">
+              <div class="block-title">品名</div>
+              <div id="replyItemName"></div>
+            </section>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
